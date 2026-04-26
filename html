@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🚗 PlutoMars Racing Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    h1 {
+      color: cyan;
+      text-shadow: 0 0 10px cyan;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 300px;
+      height: 500px;
+      margin: auto;
+      background: #333;
+      overflow: hidden;
+      border: 3px solid white;
+    }
+
+    #player {
+      width: 50px;
+      height: 80px;
+      background: red;
+      position: absolute;
+      bottom: 10px;
+      left: 125px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px red;
+    }
+
+    .enemy {
+      width: 50px;
+      height: 80px;
+      background: yellow;
+      position: absolute;
+      border-radius: 10px;
+      box-shadow: 0 0 10px yellow;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: black;
+      color: cyan;
+      border: 2px solid cyan;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🚗 PlutoMars Racing</h1>
+<p>Score: <span id="score">0</span></p>
+
+<button onclick="startGame()">Start Game</button>
+
+<div id="gameArea">
+  <div id="player"></div>
+</div>
+
+<script>
+let player = document.getElementById("player");
+let gameArea = document.getElementById("gameArea");
+
+let left = 125;
+let speed = 5;
+let score = 0;
+let gameRunning = false;
+
+let enemyInterval;
+
+document.addEventListener("keydown", (e) => {
+  if (!gameRunning) return;
+
+  if (e.key === "ArrowLeft" && left > 0) {
+    left -= 25;
+  }
+
+  if (e.key === "ArrowRight" && left < 250) {
+    left += 25;
+  }
+
+  player.style.left = left + "px";
+});
+
+function startGame() {
+  score = 0;
+  speed = 5;
+  gameRunning = true;
+
+  document.getElementById("score").innerText = score;
+
+  clearInterval(enemyInterval);
+  enemyInterval = setInterval(createEnemy, 1500);
+}
+
+function createEnemy() {
+  if (!gameRunning) return;
+
+  let enemy = document.createElement("div");
+  enemy.classList.add("enemy");
+
+  enemy.style.left = Math.floor(Math.random() * 250) + "px";
+  enemy.style.top = "0px";
+
+  gameArea.appendChild(enemy);
+
+  moveEnemy(enemy);
+}
+
+function moveEnemy(enemy) {
+  let move = setInterval(() => {
+    let top = parseInt(enemy.style.top);
+    enemy.style.top = top + speed + "px";
+
+    if (checkCollision(enemy)) {
+      endGame();
+    }
+
+    if (top > 500) {
+      enemy.remove();
+      clearInterval(move);
+
+      score++;
+      document.getElementById("score").innerText = score;
+
+      // increase difficulty
+      if (score % 5 === 0) {
+        speed++;
+      }
+    }
+  }, 30);
+}
+
+function checkCollision(enemy) {
+  let p = player.getBoundingClientRect();
+  let e = enemy.getBoundingClientRect();
+
+  return !(
+    p.top > e.bottom ||
+    p.bottom < e.top ||
+    p.left > e.right ||
+    p.right < e.left
+  );
+}
+
+function endGame() {
+  gameRunning = false;
+  clearInterval(enemyInterval);
+
+  alert("💥 Game Over!\nScore: " + score);
+  location.reload();
+}
+</script>
+
+</body>
+</html>
