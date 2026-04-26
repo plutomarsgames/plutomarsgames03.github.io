@@ -1,40 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🚗 PlutoMars Racing</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    h1 {
+      color: cyan;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 300px;
+      height: 500px;
+      margin: auto;
+      overflow: hidden;
+      border: 3px solid white;
+
+      background: repeating-linear-gradient(
+        to bottom,
+        #333 0px,
+        #333 40px,
+        white 40px,
+        white 60px
+      );
+
+      animation: roadMove 0.5s linear infinite;
+    }
+
+    @keyframes roadMove {
+      from { background-position-y: 0; }
+      to { background-position-y: 60px; }
+    }
+
+    #player {
+      width: 50px;
+      height: 80px;
+      background: red;
+      position: absolute;
+      bottom: 10px;
+      left: 125px;
+      border-radius: 10px;
+    }
+
+    .enemy {
+      width: 50px;
+      height: 80px;
+      background: yellow;
+      position: absolute;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      background: black;
+      color: cyan;
+      border: 2px solid cyan;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #gameOverScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🚗 Racing Game</h1>
+
+<p>
+Score: <span id="score">0</span> |
+Speed: <span id="speed">5</span>
+</p>
+
+<button onclick="startGame()">Start Game</button>
+
+<div id="gameArea">
+  <div id="player"></div>
+</div>
+
+<!-- Controls -->
+<div>
+  <button onclick="moveLeft()">⬅️</button>
+  <button onclick="accelerate()">🚀</button>
+  <button onclick="brake()">🛑</button>
+  <button onclick="moveRight()">➡️</button>
+</div>
+
+<!-- Game Over -->
+<div id="gameOverScreen">
+  <h2>💥 Game Over</h2>
+  <p>Score: <span id="finalScore"></span></p>
+  <button onclick="restartGame()">Play Again</button>
+</div>
+
 <script>
 let player = document.getElementById("player");
+let gameArea = document.getElementById("gameArea");
 
 let left = 125;
-let moveSpeed = 6; // 🔥 increase for faster movement
+let speed = 5;
+let score = 0;
+let gameRunning = false;
 
-let keys = {
-  left: false,
-  right: false
-};
+let enemies = [];
+let keys = { left:false, right:false };
 
-// Detect key press
-document.addEventListener("keydown", (e) => {
+// Keyboard
+document.addEventListener("keydown", e => {
   if (e.key === "ArrowLeft") keys.left = true;
   if (e.key === "ArrowRight") keys.right = true;
+  if (e.key === "ArrowUp") accelerate();
+  if (e.key === "ArrowDown") brake();
 });
 
-// Detect key release
-document.addEventListener("keyup", (e) => {
+document.addEventListener("keyup", e => {
   if (e.key === "ArrowLeft") keys.left = false;
   if (e.key === "ArrowRight") keys.right = false;
 });
 
-// Smooth movement loop
+// Start Game
+function startGame() {
+  score = 0;
+  speed = 5;
+  enemies = [];
+  gameRunning = true;
+
+  document.getElementById("score").innerText = score;
+  document.getElementById("speed").innerText = speed;
+
+  document.getElementById("gameOverScreen").style.display = "none";
+
+  movePlayer();
+  gameLoop();
+  spawnEnemies();
+}
+
+// Player movement (smooth)
 function movePlayer() {
   if (!gameRunning) return;
 
-  if (keys.left && left > 0) {
-    left -= moveSpeed;
-  }
-
-  if (keys.right && left < 250) {
-    left += moveSpeed;
-  }
+  if (keys.left && left > 0) left -= 6;
+  if (keys.right && left < 250) left += 6;
 
   player.style.left = left + "px";
 
   requestAnimationFrame(movePlayer);
 }
+
+// Game loop
+function gameLoop() {
+  if (!gameRunning) return;
+
+  enemies.forEach((enemy, index) => {
+    enemy.y += speed;
+    enemy.style.top = enemy.y + "px";
+
+    if (checkCollision(enemy)) endGame();
+
+    if (enemy.y > 500) {
+      enemy.remove();
+      enemies.splice(index, 1);
+
+      score++;
+      document.getElementById("score").innerText = score;
+
+      if (score % 5 === 0) {
+        speed += 0.5;
+        document.getElementById("speed").innerText = speed;
+      }
+    }
+  });
+
+  requestAnimationFrame(gameLoop);
+}
+
+// Spawn enemies
+function spawnEnemies() {
+  if (!gameRunning) return;
+
+  let enemy = document.createElement("div");
+  enemy.classList.add("enemy");
+
+  enemy.x = Math.random() * 250;
+  enemy.y = 0;
+
+  enemy.style.left = enemy.x + "px";
+  enemy.style.top = enemy.y + "px";
+
+  gameArea.appendChild(enemy);
+  enemies.push(enemy);
+
+  setTimeout(spawnEnemies, 1200);
+}
+
+// Collision
+function checkCollision(enemy) {
+  let p = player.getBoundingClientRect();
+  let e = enemy.getBoundingClientRect();
+
+  return !(
+    p.top > e.bottom ||
+    p.bottom < e.top ||
+    p.left > e.right ||
+    p.right < e.left
+  );
+}
+
+// Controls
+function moveLeft() { left -= 25; player.style.left = left + "px"; }
+function moveRight() { left += 25; player.style.left = left + "px"; }
+function accelerate() {
+  speed += 1;
+  document.getElementById("speed").innerText = speed;
+}
+function brake() {
+  speed -= 1;
+  if (speed < 2) speed = 2;
+  document.getElementById("speed").innerText = speed;
+}
+
+// Game over
+function endGame() {
+  gameRunning = false;
+  document.getElementById("finalScore").innerText = score;
+  document.getElementById("gameOverScreen").style.display = "flex";
+}
+
+// Restart
+function restartGame() {
+  location.reload();
+}
 </script>
+
+</body>
+</html>
