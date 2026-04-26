@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlutoMars Racing</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🚗 PlutoMars Racing</h1>
+
+<div id="gameArea">
+  <div id="car"></div>
+</div>
+
+<p>Score: <span id="score">0</span></p>
+
+<script src="game.js"></script>
+
+</body>
+</html>
