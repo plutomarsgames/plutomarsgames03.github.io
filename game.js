@@ -1,47 +1,53 @@
 let car = document.getElementById("car");
+let road = document.getElementById("road");
+let scoreEl = document.getElementById("score");
+let speedEl = document.getElementById("speed");
 let gameArea = document.getElementById("gameArea");
-let scoreDisplay = document.getElementById("score");
 
-let carX = 130;
+let carX = 140;
 let score = 0;
+let speed = 5;
 let gameRunning = true;
 
-document.addEventListener("keydown", moveCar);
+// Move car
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" && carX > 0) carX -= 20;
+  if (e.key === "ArrowRight" && carX < 280) carX += 20;
 
-function moveCar(e) {
-  if (!gameRunning) return;
-
-  if (e.key === "ArrowLeft" && carX > 0) {
-    carX -= 20;
-  }
-  if (e.key === "ArrowRight" && carX < 260) {
-    carX += 20;
-  }
   car.style.left = carX + "px";
+});
+
+// Road animation
+let roadY = 0;
+function moveRoad() {
+  roadY += speed;
+  road.style.top = roadY + "px";
+
+  if (roadY > 600) roadY = 0;
+
+  requestAnimationFrame(moveRoad);
 }
+moveRoad();
 
 // Create enemies
 function createEnemy() {
   if (!gameRunning) return;
 
-  let enemy = document.createElement("div");
+  let enemy = document.createElement("img");
+  enemy.src = "images/enemy.png";
   enemy.classList.add("enemy");
-  enemy.style.left = Math.floor(Math.random() * 260) + "px";
+  enemy.style.left = Math.random() * 280 + "px";
 
   gameArea.appendChild(enemy);
 
-  let enemyY = -80;
+  let enemyY = -100;
 
   let move = setInterval(() => {
-    if (!gameRunning) {
-      clearInterval(move);
-      return;
-    }
+    if (!gameRunning) return;
 
-    enemyY += 5;
+    enemyY += speed + 2;
     enemy.style.top = enemyY + "px";
 
-    // Collision
     let carRect = car.getBoundingClientRect();
     let enemyRect = enemy.getBoundingClientRect();
 
@@ -51,19 +57,21 @@ function createEnemy() {
       carRect.top < enemyRect.bottom &&
       carRect.bottom > enemyRect.top
     ) {
-      alert("Game Over! Score: " + score);
-      gameRunning = false;
+      alert("💀 Crash! Score: " + score);
       location.reload();
     }
 
-    if (enemyY > 500) {
+    if (enemyY > 600) {
       enemy.remove();
       score++;
-      scoreDisplay.innerText = score;
+      speed += 0.2;
+
+      scoreEl.innerText = score;
+      speedEl.innerText = Math.floor(speed * 20);
       clearInterval(move);
     }
+
   }, 20);
 }
 
-// Spawn enemies
-setInterval(createEnemy, 1500);
+setInterval(createEnemy, 1200);
