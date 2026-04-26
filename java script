@@ -1,0 +1,15 @@
+function startGame() {
+  score = 0;
+  speed = 5;
+  enemies = [];
+  gameRunning = true;
+
+  document.getElementById("score").innerText = score;
+
+  // START BOTH LOOPS
+  movePlayer();
+  requestAnimationFrame(gameLoop);
+
+  // IMPORTANT: start spawning
+  spawnEnemies();
+}
