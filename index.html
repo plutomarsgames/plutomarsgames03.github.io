@@ -1,21 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>PlutoMars Racing</title>
-<link rel="stylesheet" href="style.css">
+  <title>🚗 Racing Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    h1 { color: cyan; }
+
+    #gameArea {
+      position: relative;
+      width: 300px;
+      height: 500px;
+      margin: auto;
+      background: #222;
+      overflow: hidden;
+      border: 3px solid white;
+    }
+
+    #player {
+      width: 50px;
+      height: 80px;
+      background: red;
+      position: absolute;
+      bottom: 10px;
+      left: 125px;
+      border-radius: 10px;
+    }
+
+    .enemy {
+      width: 50px;
+      height: 80px;
+      background: yellow;
+      position: absolute;
+      border-radius: 10px;
+    }
+
+    .controls {
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 16px;
+      background: black;
+      color: cyan;
+      border: 2px solid cyan;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>🚗 PlutoMars Racing</h1>
+<h1>🚗 Racing Game</h1>
+
+<p>
+Score: <span id="score">0</span> |
+Speed: <span id="speed">5</span>
+</p>
+
+<button onclick="startGame()">Start Game</button>
 
 <div id="gameArea">
-  <div id="car"></div>
+  <div id="player"></div>
 </div>
 
-<p>Score: <span id="score">0</span></p>
+<!-- CONTROLS -->
+<div class="controls">
+  <button onclick="moveLeft()">⬅️ Left</button>
+  <button onclick="accelerate()">🚀 Accelerate</button>
+  <button onclick="brake()">🛑 Brake</button>
+  <button onclick="moveRight()">➡️ Right</button>
+</div>
 
-<script src="game.js"></script>
+<script>
+let player = document.getElementById("player");
+let gameArea = document.getElementById("gameArea");
+
+let left = 125;
+let score = 0;
+let speed = 5;
+let gameRunning = false;
+
+let enemyInterval;
+
+// Keyboard controls
+document.addEventListener("keydown", function(e) {
+  if (!gameRunning) return;
+
+  if (e.key === "ArrowLeft") moveLeft();
+  if (e.key === "ArrowRight") moveRight();
+  if (e.key === "ArrowUp") accelerate();
+  if (e.key === "ArrowDown") brake();
+});
+
+// Start game
+function startGame() {
+  score = 0;
+  speed = 5;
+  gameRunning = true;
+
+  document.getElementById("score").innerText = score;
+  document.getElementById("speed").innerText = speed;
+
+  clearInterval(enemyInterval);
+  enemyInterval = setInterval(createEnemy, 1200);
+}
+
+// Move Left
+function moveLeft() {
+  if (left > 0) {
+    left -= 25;
+    player.style.left = left + "px";
+  }
+}
+
+// Move Right
+function moveRight() {
+  if (left < 250) {
+    left += 25;
+    player.style.left = left + "px";
+  }
+}
+
+// Accelerate
+function accelerate() {
+  speed += 1;
+  document.getElementById("speed").innerText = speed;
+}
+
+// Brake
+function brake() {
+  speed -= 1;
+  if (speed < 2) speed = 2;
+  document.getElementById("speed").innerText = speed;
+}
+
+// Create enemy
+function createEnemy() {
+  if (!gameRunning) return;
+
+  let enemy = document.createElement("div");
+  enemy.classList.add("enemy");
+
+  enemy.style.left = Math.floor(Math.random() * 250) + "px";
+  enemy.style.top = "0px";
+
+  gameArea.appendChild(enemy);
+
+  moveEnemy(enemy);
+}
+
+// Move enemy
+function moveEnemy(enemy) {
+  let move = setInterval(() => {
+    let top = parseInt(enemy.style.top);
+    enemy.style.top = (top + speed) + "px";
+
+    if (checkCollision(enemy)) {
+      endGame();
+    }
+
+    if (top > 500) {
+      enemy.remove();
+      clearInterval(move);
+
+      score++;
+      document.getElementById("score").innerText = score;
+    }
+  }, 30);
+}
+
+// Collision
+function checkCollision(enemy) {
+  let p = player.getBoundingClientRect();
+  let e = enemy.getBoundingClientRect();
+
+  return !(
+    p.top > e.bottom ||
+    p.bottom < e.top ||
+    p.left > e.right ||
+    p.right < e.left
+  );
+}
+
+// End game
+function endGame() {
+  gameRunning = false;
+  clearInterval(enemyInterval);
+
+  alert("💥 Game Over! Score: " + score);
+  location.reload();
+}
+</script>
 
 </body>
 </html>
