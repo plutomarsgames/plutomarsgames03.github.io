@@ -1,0 +1,11 @@
+<audio id="bgMusic" loop>
+  <source src="bg.mp3" type="audio/mpeg">
+</audio>
+
+<button onclick="playMusic()">🔊 Start Music</button>
+
+<script>
+function playMusic() {
+  document.getElementById("bgMusic").play();
+}
+</script>
