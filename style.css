@@ -1,0 +1,33 @@
+body {
+  text-align: center;
+  font-family: Arial;
+  background: black;
+  color: white;
+}
+
+#gameArea {
+  width: 300px;
+  height: 500px;
+  background: #222;
+  margin: auto;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid white;
+}
+
+#car {
+  width: 40px;
+  height: 70px;
+  background: red;
+  position: absolute;
+  bottom: 10px;
+  left: 130px;
+}
+
+.enemy {
+  width: 40px;
+  height: 70px;
+  background: yellow;
+  position: absolute;
+  top: -80px;
+}
