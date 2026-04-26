@@ -1,18 +1,27 @@
-#car {
-  width: 40px;
-  height: 70px;
-  background: url("images/player.png");
-  background-size: cover;
-  position: absolute;
-  bottom: 10px;
-  left: 130px;
+#gameArea {
+  position: relative;
+  width: 300px;
+  height: 500px;
+  margin: auto;
+  overflow: hidden;
+  border: 3px solid white;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    #333 0px,
+    #333 40px,
+    white 40px,
+    white 60px
+  );
+
+  animation: roadMove 0.5s linear infinite;
 }
 
-.enemy {
-  width: 40px;
-  height: 70px;
-  background: url("images/enemy.png");
-  background-size: cover;
-  position: absolute;
-  top: -80px;
+@keyframes roadMove {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 60px;
+  }
 }
