@@ -1,24 +1,8 @@
-body {
-  text-align: center;
-  font-family: Arial;
-  background: black;
-  color: white;
-}
-
-#gameArea {
-  width: 300px;
-  height: 500px;
-  background: #222;
-  margin: auto;
-  position: relative;
-  overflow: hidden;
-  border: 3px solid white;
-}
-
 #car {
   width: 40px;
   height: 70px;
-  background: red;
+  background: url("images/player.png");
+  background-size: cover;
   position: absolute;
   bottom: 10px;
   left: 130px;
@@ -27,7 +11,8 @@ body {
 .enemy {
   width: 40px;
   height: 70px;
-  background: yellow;
+  background: url("images/enemy.png");
+  background-size: cover;
   position: absolute;
   top: -80px;
 }
