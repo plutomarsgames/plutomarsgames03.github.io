@@ -1,137 +1,43 @@
-/* 🔹 BODY */
 body {
   margin: 0;
+  overflow: hidden;
   background: black;
-  color: white;
-  text-align: center;
-  font-family: Arial;
 }
 
-/* 🔹 TITLE */
-h1 {
-  color: cyan;
-  text-shadow: 0 0 10px cyan;
-}
-
-/* 🔹 GAME AREA (ROAD ANIMATION) */
 #gameArea {
-  position: relative;
-  width: 300px;
-  height: 500px;
+  width: 350px;
+  height: 600px;
   margin: auto;
+  position: relative;
   overflow: hidden;
   border: 3px solid white;
-
-  background: repeating-linear-gradient(
-    to bottom,
-    #333 0px,
-    #333 40px,
-    white 40px,
-    white 60px
-  );
-
-  animation: roadMove 0.5s linear infinite;
 }
 
-/* 🔹 PLAYER CAR */
-#player {
-  width: 50px;
-  height: 80px;
-  background: red;
+#road {
   position: absolute;
-  bottom: 10px;
-  left: 125px;
-  border-radius: 10px;
-
-  /* Smooth performance */
-  will-change: transform, left;
-
-  /* Glow effect */
-  animation: glow 1s infinite alternate;
-}
-
-/* 🔹 ENEMY CAR */
-.enemy {
-  width: 50px;
-  height: 80px;
-  background: yellow;
-  position: absolute;
-  border-radius: 10px;
-
-  will-change: transform, top;
-
-  /* Smooth spawn */
-  animation: fadeIn 0.3s ease-in;
-}
-
-/* 🔹 BUTTONS */
-button {
-  padding: 10px 15px;
-  margin: 5px;
-  font-size: 16px;
-  background: black;
-  color: cyan;
-  border: 2px solid cyan;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-button:active {
-  transform: scale(0.9);
-}
-
-/* 🔹 GAME OVER SCREEN */
-#gameOverScreen {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.9);
+  height: 200%;
+  background: url("images/road.png") repeat-y;
+  background-size: cover;
+}
+
+#car {
+  width: 60px;
+  position: absolute;
+  bottom: 20px;
+  left: 140px;
+}
+
+.enemy {
+  width: 60px;
+  position: absolute;
+  top: -100px;
+}
+
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   color: white;
-  display: none;
-
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  font-size: 22px;
-  z-index: 1000;
-}
-
-#gameOverScreen h2 {
-  color: red;
-  animation: blink 1s infinite;
-}
-
-/* 🔹 ANIMATIONS */
-
-/* Road moving */
-@keyframes roadMove {
-  from { background-position-y: 0; }
-  to { background-position-y: 60px; }
-}
-
-/* Car glow */
-@keyframes glow {
-  from { box-shadow: 0 0 10px red; }
-  to { box-shadow: 0 0 25px red; }
-}
-
-/* Enemy spawn */
-@keyframes fadeIn {
-  from {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Game over blink */
-@keyframes blink {
-  50% { opacity: 0.5; }
+  font-size: 18px;
 }
