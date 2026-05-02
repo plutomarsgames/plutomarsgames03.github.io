@@ -1,230 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Advanced Driving</title>
-
-<style>
-body{
-  margin:0;
-  background:#111;
-  overflow:hidden;
-  font-family:Arial;
-  color:white;
-}
-
-/* GAME AREA */
-.game{
-  width:360px;
-  height:100vh;
-  margin:auto;
-  background:#2a2a2a;
-  position:relative;
-  overflow:hidden;
-}
-
-/* ROAD */
-.road{
-  position:absolute;
-  width:100%;
-  height:200%;
-  background:linear-gradient(#444 50%, #555 50%);
-  background-size:100% 80px;
-}
-
-/* PLAYER */
-.car{
-  position:absolute;
-  width:60px;
-  height:100px;
-  bottom:60px;
-  left:150px;
-  background:url('https://i.imgur.com/7Qx7Qx7.png') no-repeat center/cover;
-  transform-origin:center;
-}
-
-/* ENEMY */
-.enemy{
-  position:absolute;
-  width:60px;
-  height:100px;
-  background:url('https://i.imgur.com/Z6X6X6X.png') no-repeat center/cover;
-}
-
-/* CONTROLS */
-.controls{
-  position:fixed;
-  bottom:20px;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-}
-
-/* PEDALS */
-.accel{
-  width:120px;
-  height:120px;
-  background:green;
-  border-radius:20px;
-  font-size:20px;
-}
-
-.brake{
-  width:80px;
-  height:80px;
-  background:red;
-  border-radius:20px;
-}
-
-/* STEERING */
-.steer{
-  position:fixed;
-  bottom:50px;
-  left:20px;
-}
-
-.steer button{
-  width:60px;
-  height:60px;
-  font-size:20px;
-}
-
-/* SPEED */
-.speed{
-  position:fixed;
-  top:10px;
-  left:10px;
-  font-size:18px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PlutoMars Racing</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
+  <div id="menu">
+    <h1>🏎️ PlutoMars Racing</h1>
+    <button onclick="startSolo()">🤖 Play vs Bot</button>
+    <button onclick="hostGame()">🌐 Host Multiplayer</button>
+    <input id="joinId" placeholder="Enter Room ID to Join" />
+    <button onclick="joinGame()">🔗 Join Multiplayer</button>
+    <p id="roomInfo"></p>
+  </div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="mobileControls">
+    <button id="btnLeft">◀</button>
+    <button id="btnUp">▲</button>
+    <button id="btnDown">▼</button>
+    <button id="btnRight">▶</button>
+  </div>
+  <div id="hud">
+    <span id="speed">Speed: 0</span>
+    <span id="lap">Lap: 1/3</span>
+    <span id="pos">Position: 1st</span>
+  </div>
 
-<div class="speed" id="speed">Speed: 0</div>
-
-<div class="game" id="game">
-  <div class="road" id="road"></div>
-  <div class="car" id="player"></div>
-</div>
-
-<div class="controls">
-  <button class="brake"
-    onmousedown="braking=true"
-    onmouseup="braking=false"
-    ontouchstart="braking=true"
-    ontouchend="braking=false">BRAKE</button>
-
-  <button class="accel"
-    onmousedown="accelerating=true"
-    onmouseup="accelerating=false"
-    ontouchstart="accelerating=true"
-    ontouchend="accelerating=false">ACCEL</button>
-</div>
-
-<div class="steer">
-  <button onmousedown="left=true" onmouseup="left=false">⬅</button>
-  <button onmousedown="right=true" onmouseup="right=false">➡</button>
-</div>
-
-<script>
-let player = document.getElementById("player");
-let road = document.getElementById("road");
-
-let speed = 0;
-let maxSpeed = 12;
-
-let accelerating = false;
-let braking = false;
-let left = false;
-let right = false;
-
-let playerX = 150;
-let angle = 0;
-
-let enemies = [];
-let gameRunning = true;
-
-/* SPAWN TRAFFIC */
-function spawnEnemy(){
-  let e = document.createElement("div");
-  e.className = "enemy";
-  e.style.top = "-120px";
-  e.style.left = Math.random()*300 + "px";
-  document.getElementById("game").appendChild(e);
-  enemies.push(e);
-}
-
-setInterval(()=>{
-  if(gameRunning) spawnEnemy();
-},1200);
-
-/* LOOP */
-function loop(){
-
-  if(!gameRunning) return;
-
-  /* PHYSICS */
-  if(accelerating && speed < maxSpeed) speed += 0.1;
-  if(braking && speed > 0) speed -= 0.3;
-  if(!accelerating && speed > 0) speed -= 0.02;
-
-  /* STEERING */
-  if(left){
-    playerX -= 2 + speed*0.2;
-    angle = -10;
-  } else if(right){
-    playerX += 2 + speed*0.2;
-    angle = 10;
-  } else {
-    angle = 0;
-  }
-
-  /* LIMIT ROAD */
-  if(playerX < 0) playerX = 0;
-  if(playerX > 300) playerX = 300;
-
-  player.style.left = playerX + "px";
-  player.style.transform = "rotate("+angle+"deg)";
-
-  /* MOVE ROAD */
-  road.style.top = (road.offsetTop + speed) % 80 + "px";
-
-  /* ENEMIES */
-  enemies.forEach((e,i)=>{
-    e.style.top = e.offsetTop + speed + 2 + "px";
-
-    /* COLLISION */
-    if(
-      e.offsetTop < player.offsetTop + 100 &&
-      e.offsetTop + 100 > player.offsetTop &&
-      e.offsetLeft < player.offsetLeft + 60 &&
-      e.offsetLeft + 60 > player.offsetLeft
-    ){
-      gameOver();
-    }
-
-    if(e.offsetTop > window.innerHeight){
-      e.remove();
-      enemies.splice(i,1);
-    }
-  });
-
-  document.getElementById("speed").innerText =
-    "Speed: " + speed.toFixed(1);
-
-  requestAnimationFrame(loop);
-}
-
-loop();
-
-/* GAME OVER */
-function gameOver(){
-  gameRunning = false;
-  alert("Crash! Game Over");
-  location.reload();
-}
-</script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
