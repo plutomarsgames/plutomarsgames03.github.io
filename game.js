@@ -16,22 +16,21 @@ const light = new THREE.DirectionalLight(0xffffff,1);
 light.position.set(10,20,10);
 scene.add(light);
 
-// track
-const trackGeo = new THREE.PlaneGeometry(200,200);
-const trackMat = new THREE.MeshStandardMaterial({color:0x333333});
-const track = new THREE.Mesh(trackGeo, trackMat);
-track.rotation.x = -Math.PI/2;
-scene.add(track);
+// ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(200,200),
+  new THREE.MeshStandardMaterial({color:0x333333})
+);
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
 
-// load car
-let car;
-
-const loader = new THREE.GLTFLoader();
-loader.load('models/car.glb', (gltf)=>{
-  car = gltf.scene;
-  car.scale.set(1,1,1);
-  scene.add(car);
-});
+// TEMP CAR (BOX)
+const car = new THREE.Mesh(
+  new THREE.BoxGeometry(1,0.5,2),
+  new THREE.MeshStandardMaterial({color:0xff0000})
+);
+car.position.y = 0.3;
+scene.add(car);
 
 // controls
 let speed = 0;
@@ -48,16 +47,13 @@ document.addEventListener("keydown", (e)=>{
 function animate(){
   requestAnimationFrame(animate);
 
-  if(car){
-    car.rotation.y += turn;
-    car.position.x += Math.sin(car.rotation.y)*speed;
-    car.position.z += Math.cos(car.rotation.y)*speed;
+  car.rotation.y += turn;
+  car.position.x += Math.sin(car.rotation.y)*speed;
+  car.position.z += Math.cos(car.rotation.y)*speed;
 
-    // camera follow
-    camera.position.x = car.position.x;
-    camera.position.z = car.position.z + 8;
-    camera.lookAt(car.position);
-  }
+  camera.position.x = car.position.x;
+  camera.position.z = car.position.z + 8;
+  camera.lookAt(car.position);
 
   renderer.render(scene,camera);
 }
