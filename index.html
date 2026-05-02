@@ -1,92 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>PlutoMars Racing</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Plutomars Battle Racing</title>
+  <style>
+    body { margin:0; overflow:hidden; background:black; }
+    canvas { display:block; }
+  </style>
 </head>
 <body>
 
-  <!-- MAIN MENU -->
-  <div id="menu">
-    <div class="logo">
-      <div class="logo-icon">🏎️</div>
-      <h1>PlutoMars<br><span>Racing</span></h1>
-    </div>
-    <div class="menu-buttons">
-      <button class="btn-solo" onclick="startSolo()">
-        <span class="btn-icon">🤖</span>
-        Play vs Bot
-      </button>
-      <button class="btn-host" onclick="hostGame()">
-        <span class="btn-icon">🌐</span>
-        Host Multiplayer
-      </button>
-      <div class="join-row">
-        <input id="joinId" placeholder="Enter Room ID…" autocomplete="off" />
-        <button class="btn-join" onclick="joinGame()">Join</button>
-      </div>
-    </div>
-    <p id="roomInfo"></p>
-    <div class="controls-hint">
-      <span>⌨️ Arrow Keys / WASD</span>
-      <span>📱 On-screen buttons</span>
-    </div>
-  </div>
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 
-  <!-- GAME CANVAS -->
-  <canvas id="gameCanvas"></canvas>
+<script>
+// ===== SCENE SETUP =====
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
 
-  <!-- HUD -->
-  <div id="hud">
-    <div class="hud-item">
-      <span class="hud-label">SPEED</span>
-      <span class="hud-value" id="speed">0</span>
-      <span class="hud-unit">km/h</span>
-    </div>
-    <div class="hud-item">
-      <span class="hud-label">LAP</span>
-      <span class="hud-value" id="lap">1</span>
-      <span class="hud-unit">/ 3</span>
-    </div>
-    <div class="hud-item">
-      <span class="hud-label">POS</span>
-      <span class="hud-value" id="pos">1st</span>
-    </div>
-  </div>
+// camera
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0,5,10);
 
-  <!-- ROOM ID BADGE (multiplayer) -->
-  <div id="roomBadge" style="display:none">
-    <span id="roomBadgeText"></span>
-  </div>
+// renderer
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-  <!-- FINISH SCREEN -->
-  <div id="finishScreen" style="display:none">
-    <div class="finish-box">
-      <div class="finish-icon" id="finishIcon">🏆</div>
-      <h2 id="finishTitle">Race Finished!</h2>
-      <p id="finishMsg">You completed 3 laps!</p>
-      <button onclick="restartGame()">🔄 Play Again</button>
-      <button onclick="backToMenu()">🏠 Main Menu</button>
-    </div>
-  </div>
+// ===== LIGHT =====
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(10,20,10);
+scene.add(light);
 
-  <!-- MOBILE CONTROLS -->
-  <div id="mobileControls">
-    <div class="mobile-row">
-      <button id="btnUp" class="mobile-btn">▲</button>
-    </div>
-    <div class="mobile-row">
-      <button id="btnLeft" class="mobile-btn">◀</button>
-      <button id="btnDown" class="mobile-btn">▼</button>
-      <button id="btnRight" class="mobile-btn">▶</button>
-    </div>
-  </div>
+// ===== ARENA =====
+const groundGeo = new THREE.PlaneGeometry(100,100);
+const groundMat = new THREE.MeshStandardMaterial({color:0x111111});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
 
-  <!-- SCRIPTS — PeerJS from cdnjs (CSP-safe), Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
-  <script src="game.js"></script>
+// ===== PLAYER CAR =====
+const carGeo = new THREE.BoxGeometry(1,0.5,2);
+const carMat = new THREE.MeshStandardMaterial({color:0x00ffcc});
+const car = new THREE.Mesh(carGeo, carMat);
+car.position.y = 0.3;
+scene.add(car);
+
+// ===== VARIABLES =====
+let speed = 0;
+let turnSpeed = 0;
+
+// ===== CONTROLS =====
+document.addEventListener("keydown", (e)=>{
+  if(e.key==="ArrowUp") speed += 0.02;
+  if(e.key==="ArrowDown") speed -= 0.02;
+  if(e.key==="ArrowLeft") turnSpeed += 0.03;
+  if(e.key==="ArrowRight") turnSpeed -= 0.03;
+});
+
+// ===== GAME LOOP =====
+function animate(){
+  requestAnimationFrame(animate);
+
+  // movement
+  car.rotation.y += turnSpeed;
+  car.position.x += Math.sin(car.rotation.y) * speed;
+  car.position.z += Math.cos(car.rotation.y) * speed;
+
+  // camera follow
+  camera.position.x = car.position.x;
+  camera.position.z = car.position.z + 8;
+  camera.lookAt(car.position);
+
+  renderer.render(scene,camera);
+}
+animate();
+
+// ===== RESPONSIVE =====
+window.addEventListener("resize", ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+
 </body>
 </html>
