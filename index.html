@@ -9,7 +9,6 @@
 </head>
 <body>
 
-<!-- Three.js -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 
 <script>
@@ -48,6 +47,7 @@ scene.add(car);
 // ===== VARIABLES =====
 let speed = 0;
 let turnSpeed = 0;
+let bullets = [];
 
 // ===== CONTROLS =====
 document.addEventListener("keydown", (e)=>{
@@ -55,16 +55,46 @@ document.addEventListener("keydown", (e)=>{
   if(e.key==="ArrowDown") speed -= 0.02;
   if(e.key==="ArrowLeft") turnSpeed += 0.03;
   if(e.key==="ArrowRight") turnSpeed -= 0.03;
+
+  if(e.code === "Space") shoot(); // SHOOT
 });
+
+// ===== SHOOT FUNCTION =====
+function shoot(){
+  const bulletGeo = new THREE.SphereGeometry(0.2);
+  const bulletMat = new THREE.MeshBasicMaterial({color:0xffff00});
+  const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+
+  bullet.position.copy(car.position);
+
+  bullet.userData = {
+    direction: car.rotation.y
+  };
+
+  scene.add(bullet);
+  bullets.push(bullet);
+}
 
 // ===== GAME LOOP =====
 function animate(){
   requestAnimationFrame(animate);
 
-  // movement
+  // car movement
   car.rotation.y += turnSpeed;
   car.position.x += Math.sin(car.rotation.y) * speed;
   car.position.z += Math.cos(car.rotation.y) * speed;
+
+  // bullet movement
+  bullets.forEach((b, index) => {
+    b.position.x += Math.sin(b.userData.direction) * 0.5;
+    b.position.z += Math.cos(b.userData.direction) * 0.5;
+
+    // remove far bullets
+    if(Math.abs(b.position.x) > 200 || Math.abs(b.position.z) > 200){
+      scene.remove(b);
+      bullets.splice(index,1);
+    }
+  });
 
   // camera follow
   camera.position.x = car.position.x;
