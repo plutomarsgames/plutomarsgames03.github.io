@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>PlutoMars Racing</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- MAIN MENU -->
+  <div id="menu">
+    <div class="logo">
+      <div class="logo-icon">🏎️</div>
+      <h1>PlutoMars<br><span>Racing</span></h1>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn-solo" onclick="startSolo()">
+        <span class="btn-icon">🤖</span>
+        Play vs Bot
+      </button>
+      <button class="btn-host" onclick="hostGame()">
+        <span class="btn-icon">🌐</span>
+        Host Multiplayer
+      </button>
+      <div class="join-row">
+        <input id="joinId" placeholder="Enter Room ID…" autocomplete="off" />
+        <button class="btn-join" onclick="joinGame()">Join</button>
+      </div>
+    </div>
+    <p id="roomInfo"></p>
+    <div class="controls-hint">
+      <span>⌨️ Arrow Keys / WASD</span>
+      <span>📱 On-screen buttons</span>
+    </div>
+  </div>
+
+  <!-- GAME CANVAS -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-item">
+      <span class="hud-label">SPEED</span>
+      <span class="hud-value" id="speed">0</span>
+      <span class="hud-unit">km/h</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">LAP</span>
+      <span class="hud-value" id="lap">1</span>
+      <span class="hud-unit">/ 3</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">POS</span>
+      <span class="hud-value" id="pos">1st</span>
+    </div>
+  </div>
+
+  <!-- ROOM ID BADGE (multiplayer) -->
+  <div id="roomBadge" style="display:none">
+    <span id="roomBadgeText"></span>
+  </div>
+
+  <!-- FINISH SCREEN -->
+  <div id="finishScreen" style="display:none">
+    <div class="finish-box">
+      <div class="finish-icon" id="finishIcon">🏆</div>
+      <h2 id="finishTitle">Race Finished!</h2>
+      <p id="finishMsg">You completed 3 laps!</p>
+      <button onclick="restartGame()">🔄 Play Again</button>
+      <button onclick="backToMenu()">🏠 Main Menu</button>
+    </div>
+  </div>
+
+  <!-- MOBILE CONTROLS -->
+  <div id="mobileControls">
+    <div class="mobile-row">
+      <button id="btnUp" class="mobile-btn">▲</button>
+    </div>
+    <div class="mobile-row">
+      <button id="btnLeft" class="mobile-btn">◀</button>
+      <button id="btnDown" class="mobile-btn">▼</button>
+      <button id="btnRight" class="mobile-btn">▶</button>
+    </div>
+  </div>
+
+  <!-- SCRIPTS — PeerJS from cdnjs (CSP-safe), Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
