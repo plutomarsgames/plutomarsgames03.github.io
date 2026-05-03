@@ -8,10 +8,11 @@
 </head>
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
+<script type="module">
 
-<script>
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
+
 // ===== SCENE =====
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB);
@@ -47,25 +48,25 @@ road.rotation.x = -Math.PI/2;
 road.position.y = 0.01;
 scene.add(road);
 
-// ===== CAR LOADING =====
+// ===== LOAD CAR =====
 let car;
 
-const loader = new THREE.GLTFLoader();
+const loader = new GLTFLoader();
 
 loader.load(
   './models/car.glb',
-  function (gltf) {
+  (gltf)=>{
     car = gltf.scene;
 
-    car.scale.set(1,1,1); // adjust if needed
+    car.scale.set(1,1,1);
     car.position.y = 0.3;
 
     scene.add(car);
     console.log("Car Loaded ✅");
   },
   undefined,
-  function (error) {
-    console.error("ERROR LOADING MODEL:", error);
+  (error)=>{
+    console.error("MODEL ERROR:", error);
   }
 );
 
@@ -80,7 +81,7 @@ document.addEventListener("keydown", (e)=>{
   if(e.key==="ArrowRight") turn -= 0.03;
 });
 
-// ===== GAME LOOP =====
+// ===== LOOP =====
 function animate(){
   requestAnimationFrame(animate);
 
@@ -89,11 +90,9 @@ function animate(){
     car.position.x += Math.sin(car.rotation.y)*speed;
     car.position.z += Math.cos(car.rotation.y)*speed;
 
-    // smooth feel
     speed *= 0.98;
     turn *= 0.9;
 
-    // camera follow
     camera.position.x = car.position.x;
     camera.position.z = car.position.z + 8;
     camera.position.y = 5;
@@ -104,12 +103,13 @@ function animate(){
 }
 animate();
 
-// ===== RESPONSIVE =====
+// ===== RESIZE =====
 window.addEventListener("resize", ()=>{
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 </script>
 
 </body>
