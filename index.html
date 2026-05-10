@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>POLY RUSH</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- ═══════════════════════════════════════════
+       CUSTOMIZATION SECTION — change these values
+       ═══════════════════════════════════════════ -->
+  <script>
+    window.GAME_CONFIG = {
+      // ── Branding ──────────────────────────────
+      TITLE:          "POLY RUSH",
+      SUBTITLE:       "LOW POLY RACING",
+      LOGO_EMOJI:     "🏎️",
+
+      // ── Colors (CSS hex) ──────────────────────
+      COLOR_PRIMARY:  "#00f5ff",   // neon cyan
+      COLOR_ACCENT:   "#ff006e",   // neon pink
+      COLOR_ROAD:     "#1a1a2e",
+      COLOR_SKY_DAY:  "#87ceeb",
+      COLOR_SKY_NIGHT:"#0a0a1a",
+      COLOR_GRASS_DAY:"#2d5a1b",
+      COLOR_GRASS_NIGHT:"#0d1f0a",
+
+      // ── Car physics ───────────────────────────
+      MAX_SPEED:       18,         // units/frame (×0.1 = km/h display factor)
+      ACCELERATION:    0.35,
+      BRAKING:         0.55,
+      DRIFT_FACTOR:    0.88,       // 0 = full drift, 1 = grippy
+      BOOST_MULTIPLIER:1.8,
+      BOOST_DURATION:  120,        // frames
+
+      // ── World ─────────────────────────────────
+      ROAD_WIDTH:      320,        // px
+      SEGMENT_LENGTH:  200,        // px depth per segment
+      VISIBLE_SEGMENTS:150,
+      COIN_VALUE:      10,
+      OBSTACLE_FREQ:   0.08,       // 0–1 probability per segment
+      AI_CARS:         4,
+
+      // ── Lap ───────────────────────────────────
+      LAP_SEGMENTS:    300,        // segments per lap
+    };
+  </script>
+</head>
+<body>
+
+<!-- ════════════════════════════
+     MAIN MENU
+════════════════════════════ -->
+<div id="menu-screen" class="screen active">
+  <div class="menu-bg"></div>
+  <div class="scanlines"></div>
+
+  <header class="menu-header">
+    <div class="logo-wrap">
+      <span class="logo-emoji" id="logo-emoji">🏎️</span>
+      <div>
+        <h1 class="game-title" id="game-title">POLY RUSH</h1>
+        <p class="game-subtitle" id="game-subtitle">LOW POLY RACING</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Car skin selector -->
+  <section class="skin-selector">
+    <h2 class="section-label">SELECT CAR</h2>
+    <div class="skin-grid" id="skin-grid">
+      <!-- Injected by JS -->
+    </div>
+  </section>
+
+  <div class="menu-actions">
+    <button class="btn btn-primary" id="btn-play">▶ RACE NOW</button>
+    <button class="btn btn-ghost" id="btn-howto">HOW TO PLAY</button>
+  </div>
+
+  <div class="best-time-display">
+    <span class="label">BEST LAP</span>
+    <span class="value" id="best-time-display">--:--.--</span>
+  </div>
+
+  <footer class="menu-footer">
+    Use W/A/S/D or Arrow Keys &nbsp;|&nbsp; Touch on Mobile
+  </footer>
+</div>
+
+<!-- ════════════════════════════
+     HOW TO PLAY MODAL
+════════════════════════════ -->
+<div id="howto-modal" class="modal hidden">
+  <div class="modal-box">
+    <h2>HOW TO PLAY</h2>
+    <div class="controls-grid">
+      <div class="ctrl-row"><kbd>W</kbd><span>Accelerate</span></div>
+      <div class="ctrl-row"><kbd>S</kbd><span>Brake / Reverse</span></div>
+      <div class="ctrl-row"><kbd>A</kbd><span>Steer Left</span></div>
+      <div class="ctrl-row"><kbd>D</kbd><span>Steer Right</span></div>
+      <div class="ctrl-row"><kbd>SHIFT</kbd><span>Boost</span></div>
+      <div class="ctrl-row"><kbd>C</kbd><span>Camera Toggle</span></div>
+    </div>
+    <ul class="tip-list">
+      <li>🪙 Collect coins for score bonus</li>
+      <li>⚡ Hit boost pads for speed burst</li>
+      <li>🚧 Avoid obstacles or lose speed</li>
+      <li>🌙 Day/Night cycle every 2 laps</li>
+      <li>🏁 Complete 3 laps to finish</li>
+    </ul>
+    <button class="btn btn-primary" id="btn-close-howto">CLOSE</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     GAME SCREEN
+════════════════════════════ -->
+<div id="game-screen" class="screen hidden">
+
+  <!-- Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-top">
+      <div class="hud-block" id="hud-lap">
+        <span class="hud-label">LAP</span>
+        <span class="hud-value" id="lap-display">1/3</span>
+      </div>
+      <div class="hud-block hud-center" id="hud-timer">
+        <span class="hud-label">TIME</span>
+        <span class="hud-value" id="timer-display">00:00.00</span>
+      </div>
+      <div class="hud-block" id="hud-coins">
+        <span class="hud-label">COINS</span>
+        <span class="hud-value" id="coin-display">0</span>
+      </div>
+    </div>
+
+    <!-- Speedometer -->
+    <div id="speedometer">
+      <canvas id="speedo-canvas" width="130" height="130"></canvas>
+      <div id="speed-value">0</div>
+      <div id="speed-unit">KM/H</div>
+    </div>
+
+    <!-- Boost bar -->
+    <div id="boost-bar-wrap">
+      <div class="hud-label">BOOST</div>
+      <div id="boost-bar-track">
+        <div id="boost-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- Mini-map -->
+    <canvas id="minimap-canvas" width="120" height="120"></canvas>
+  </div>
+
+  <!-- Pause / race-message overlay -->
+  <div id="race-overlay" class="hidden">
+    <div id="race-message"></div>
+    <button class="btn btn-primary" id="btn-resume">RESUME</button>
+    <button class="btn btn-ghost" id="btn-menu-from-game">MENU</button>
+  </div>
+
+  <!-- Finish screen -->
+  <div id="finish-screen" class="hidden">
+    <h2 class="finish-title">RACE COMPLETE!</h2>
+    <div class="finish-stats">
+      <div class="stat-row"><span>BEST LAP</span><span id="finish-best-lap">--</span></div>
+      <div class="stat-row"><span>TOTAL TIME</span><span id="finish-total">--</span></div>
+      <div class="stat-row"><span>COINS</span><span id="finish-coins">--</span></div>
+      <div class="stat-row"><span>SCORE</span><span id="finish-score">--</span></div>
+    </div>
+    <button class="btn btn-primary" id="btn-restart">🔄 RESTART</button>
+    <button class="btn btn-ghost" id="btn-back-menu">MENU</button>
+  </div>
+
+  <!-- Top-right pause button -->
+  <button id="btn-pause">⏸</button>
+</div>
+
+<!-- ════════════════════════════
+     MOBILE TOUCH CONTROLS
+════════════════════════════ -->
+<div id="touch-controls" class="hidden">
+  <div class="touch-left">
+    <button class="touch-btn" id="touch-left">◀</button>
+  </div>
+  <div class="touch-center">
+    <button class="touch-btn touch-up" id="touch-up">▲</button>
+    <button class="touch-btn touch-down" id="touch-down">▼</button>
+  </div>
+  <div class="touch-right">
+    <button class="touch-btn" id="touch-right">▶</button>
+  </div>
+  <div class="touch-extra">
+    <button class="touch-btn touch-boost" id="touch-boost">⚡</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

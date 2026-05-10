@@ -1,0 +1,534 @@
+/* ═══════════════════════════════════════════════════════
+   POLY RUSH  —  style.css
+   Retro-futuristic neon aesthetic
+═══════════════════════════════════════════════════════ */
+
+/* ── Google Font ── */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+/* ── CSS Variables (mirrors GAME_CONFIG colors) ── */
+:root {
+  --primary:   #00f5ff;
+  --accent:    #ff006e;
+  --surface:   rgba(10, 10, 30, 0.92);
+  --border:    rgba(0, 245, 255, 0.35);
+  --text:      #e0f7ff;
+  --dim:       rgba(224, 247, 255, 0.45);
+  --glow:      0 0 8px var(--primary), 0 0 20px var(--primary);
+  --glow-acc:  0 0 8px var(--accent),  0 0 20px var(--accent);
+  --font-main: 'Orbitron', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --radius:    6px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: var(--font-main);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ════════════════════════════════════════
+   SCREENS
+════════════════════════════════════════ */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.screen.hidden  { display: none; }
+.screen.active  { display: flex; }
+
+/* ════════════════════════════════════════
+   MAIN MENU
+════════════════════════════════════════ */
+#menu-screen {
+  background: radial-gradient(ellipse at 50% 30%, #0d1b3e 0%, #050510 70%);
+  gap: 28px;
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* animated grid background */
+.menu-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,.07) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: bgscroll 12s linear infinite;
+  pointer-events: none;
+}
+@keyframes bgscroll {
+  to { background-position: 0 60px; }
+}
+
+/* scanline overlay */
+.scanlines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,.18) 3px,
+    rgba(0,0,0,.18) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Logo / Header ── */
+.menu-header { position: relative; z-index: 2; text-align: center; }
+.logo-wrap {
+  display: flex; align-items: center; gap: 18px;
+  justify-content: center;
+}
+.logo-emoji {
+  font-size: clamp(48px, 8vw, 80px);
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px var(--primary));
+}
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-8px) rotate(3deg); }
+}
+.game-title {
+  font-size: clamp(36px, 7vw, 80px);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  background: linear-gradient(135deg, var(--primary), #fff 60%, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  line-height: 1;
+}
+.game-subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 2vw, 14px);
+  color: var(--dim);
+  letter-spacing: 0.35em;
+  margin-top: 4px;
+}
+
+/* ── Skin Selector ── */
+.skin-selector { position: relative; z-index: 2; text-align: center; width: 100%; max-width: 600px; }
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--dim);
+  margin-bottom: 12px;
+}
+.skin-grid {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.skin-card {
+  width: 88px; height: 70px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s, box-shadow .2s;
+  background: rgba(0,0,0,.4);
+  gap: 4px;
+}
+.skin-card:hover  { border-color: var(--primary); transform: translateY(-3px); }
+.skin-card.active { border-color: var(--primary); box-shadow: var(--glow); }
+.skin-canvas { border-radius: 3px; }
+.skin-name {
+  font-size: 9px;
+  letter-spacing: .15em;
+  color: var(--dim);
+  font-family: var(--font-mono);
+}
+
+/* ── Buttons ── */
+.menu-actions {
+  position: relative; z-index: 2;
+  display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+}
+.btn {
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 14px 32px;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .18s;
+  text-transform: uppercase;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #000;
+  box-shadow: var(--glow);
+}
+.btn-primary:hover {
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 20px #fff, 0 0 40px var(--primary);
+  transform: translateY(-2px);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+}
+.btn-ghost:hover {
+  background: rgba(0,245,255,.1);
+  transform: translateY(-2px);
+}
+
+/* ── Best time ── */
+.best-time-display {
+  position: relative; z-index: 2;
+  display: flex; gap: 12px; align-items: center;
+  font-family: var(--font-mono);
+}
+.best-time-display .label { color: var(--dim); font-size: 11px; letter-spacing: .3em; }
+.best-time-display .value { color: var(--primary); font-size: 18px; text-shadow: var(--glow); }
+
+.menu-footer {
+  position: relative; z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: .15em;
+}
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal.hidden { display: none; }
+.modal-box {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 36px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: var(--glow);
+  display: flex; flex-direction: column; gap: 20px;
+}
+.modal-box h2 {
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: .25em;
+  color: var(--primary);
+  text-shadow: var(--glow);
+}
+.controls-grid { display: flex; flex-direction: column; gap: 8px; }
+.ctrl-row {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 48px; height: 28px;
+  padding: 0 8px;
+  background: rgba(0,245,255,.12);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--primary);
+}
+.tip-list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* ════════════════════════════════════════
+   GAME SCREEN
+════════════════════════════════════════ */
+#game-screen { background: #000; }
+#game-canvas  { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ── HUD ── */
+#hud {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.hud-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 14px 18px;
+  gap: 10px;
+}
+.hud-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 18px;
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 90px;
+  backdrop-filter: blur(8px);
+}
+.hud-center { min-width: 140px; }
+.hud-label {
+  font-size: 9px;
+  letter-spacing: .35em;
+  color: var(--dim);
+  font-family: var(--font-mono);
+}
+.hud-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  text-shadow: var(--glow);
+  font-family: var(--font-mono);
+  line-height: 1.1;
+}
+
+/* ── Speedometer ── */
+#speedometer {
+  position: absolute;
+  bottom: 20px; right: 20px;
+  width: 130px; height: 130px;
+  display: flex; align-items: center; justify-content: center;
+}
+#speedo-canvas { position: absolute; inset: 0; }
+#speed-value {
+  position: relative;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary);
+  text-shadow: var(--glow);
+  font-family: var(--font-mono);
+  line-height: 1;
+  margin-top: 8px;
+}
+#speed-unit {
+  position: absolute;
+  bottom: 24px;
+  font-size: 9px;
+  letter-spacing: .3em;
+  color: var(--dim);
+  font-family: var(--font-mono);
+}
+
+/* ── Boost bar ── */
+#boost-bar-wrap {
+  position: absolute;
+  bottom: 28px; right: 162px;
+  width: 22px; height: 110px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+#boost-bar-wrap .hud-label { writing-mode: vertical-lr; letter-spacing: .2em; font-size: 8px; }
+#boost-bar-track {
+  flex: 1; width: 100%;
+  background: rgba(255,255,255,.1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+#boost-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, var(--accent), var(--primary));
+  box-shadow: var(--glow-acc);
+  transition: height .08s;
+  transform-origin: bottom;
+}
+
+/* ── Mini-map ── */
+#minimap-canvas {
+  position: absolute;
+  bottom: 20px; left: 20px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+}
+
+/* ── Pause button ── */
+#btn-pause {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  font-size: 20px;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 20;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .15s;
+}
+#btn-pause:hover { box-shadow: var(--glow); }
+
+/* ── Race overlay (pause) ── */
+#race-overlay, #finish-screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 18px;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(10px);
+  z-index: 30;
+}
+#race-overlay.hidden, #finish-screen.hidden { display: none; }
+#race-message {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  letter-spacing: .2em;
+  color: var(--primary);
+  text-shadow: var(--glow);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .6; }
+}
+
+/* ── Finish screen ── */
+.finish-title {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  letter-spacing: .2em;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.finish-stats {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 36px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-width: 280px;
+}
+.stat-row {
+  display: flex; justify-content: space-between; gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+.stat-row span:first-child { color: var(--dim); }
+.stat-row span:last-child  { color: var(--primary); text-shadow: var(--glow); }
+
+/* ════════════════════════════════════════
+   TOUCH CONTROLS
+════════════════════════════════════════ */
+#touch-controls {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 16px;
+  pointer-events: none;
+  z-index: 50;
+}
+#touch-controls.hidden { display: none; }
+.touch-left, .touch-right, .touch-center, .touch-extra {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+.touch-center { flex-direction: column; gap: 6px; }
+.touch-btn {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: rgba(0,0,0,.55);
+  color: var(--primary);
+  font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(4px);
+  transition: background .1s, box-shadow .1s;
+  active: none;
+}
+.touch-btn:active { background: rgba(0,245,255,.25); box-shadow: var(--glow); }
+.touch-boost { border-color: var(--accent); color: var(--accent); font-size: 26px; }
+.touch-boost:active { background: rgba(255,0,110,.25); box-shadow: var(--glow-acc); }
+.touch-up, .touch-down { width: 56px; height: 56px; font-size: 18px; }
+
+/* ════════════════════════════════════════
+   UTILITY
+════════════════════════════════════════ */
+
+/* countdown flash */
+.countdown-flash {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20vw;
+  font-weight: 900;
+  color: var(--primary);
+  text-shadow: var(--glow);
+  pointer-events: none;
+  animation: flashfade .8s ease-out forwards;
+  z-index: 200;
+}
+@keyframes flashfade {
+  0%   { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(0.7); }
+}
+
+/* coin pickup pop */
+.coin-pop {
+  position: fixed;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: #ffd700;
+  text-shadow: 0 0 8px #ffd700;
+  pointer-events: none;
+  animation: coinpop .7s ease-out forwards;
+  z-index: 150;
+}
+@keyframes coinpop {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+/* speed boost flash */
+.boost-flash {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0,245,255,.18) 0%, transparent 70%);
+  pointer-events: none;
+  animation: boostfade .5s ease-out forwards;
+  z-index: 90;
+}
+@keyframes boostfade {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hud-value  { font-size: 16px; }
+  .hud-block  { padding: 6px 12px; min-width: 70px; }
+  #speedometer { width: 100px; height: 100px; bottom: 170px; }
+  #speedo-canvas { width: 100px; height: 100px; }
+  #speed-value   { font-size: 22px; }
+  #minimap-canvas { bottom: 170px; width: 90px; height: 90px; }
+  #boost-bar-wrap { bottom: 180px; right: 130px; height: 90px; }
+}
+@media (min-width: 601px) {
+  #touch-controls { display: none !important; }
+}
